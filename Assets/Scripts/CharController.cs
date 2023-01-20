@@ -4,18 +4,33 @@ using UnityEngine;
 
 public class CharController : MonoBehaviour
 {
-
     private Rigidbody rb;
     private bool walkingRight;
-    
+
+    public Transform rayStart;
+    private Animator anim;
+
+    private GameManager gameManager;
+
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        anim = GetComponent<Animator>();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     void FixedUpdate()
     {
+        if (!gameManager.gameStarted)
+        {
+            return;
+        }
+        else
+        {
+            anim.SetTrigger("gameStarted");
+        }
+
         rb.transform.position = transform.position + transform.forward * 2 * Time.deltaTime;
     }
 
@@ -24,7 +39,19 @@ public class CharController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-           Switch(); 
+            Switch();
+        }
+
+        RaycastHit hit;
+
+        if (!Physics.Raycast(rayStart.position, -transform.up, out hit, Mathf.Infinity))
+        {
+            anim.SetTrigger("isFalling");
+        }
+
+        if (transform.position.y < -2)
+        {
+            gameManager.EndGame();
         }
     }
 
