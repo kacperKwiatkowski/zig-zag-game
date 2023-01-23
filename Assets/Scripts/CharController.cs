@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class CharController : MonoBehaviour
 {
-    private Rigidbody rb;
-    private bool walkingRight;
-
     public Transform rayStart;
+    public GameObject crystalEffect;
+    
+    private Rigidbody rb;
+    private bool walkingRight = true;
     private Animator anim;
-
     private GameManager gameManager;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -57,6 +58,12 @@ public class CharController : MonoBehaviour
 
     private void Switch()
     {
+
+        if (!gameManager.gameStarted)
+        {
+            return;
+        }
+        
         walkingRight = !walkingRight;
 
         if (walkingRight)
@@ -66,6 +73,18 @@ public class CharController : MonoBehaviour
         else
         {
             transform.rotation = Quaternion.Euler(0, -45, 0);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Crystal")
+        {
+            gameManager.IncreaseScore();
+            
+            GameObject g = Instantiate(crystalEffect, rayStart.transform.position, Quaternion.identity);
+            Destroy(g, 2);
+            Destroy(other.gameObject);
         }
     }
 }
